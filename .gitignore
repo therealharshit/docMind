@@ -7,9 +7,9 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
-storage/
-uploads/
-results/
+/storage/
+/uploads/
+/results/
 *.db
 *.sqlite
 *.sqlite3
