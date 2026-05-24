@@ -5,16 +5,21 @@ from uuid import uuid4
 from fastapi import UploadFile
 
 from app.core.config import Settings
-from app.core.errors import ErrorCode, UnsupportedFileTypeError, AppError
+from app.core.errors import AppError, ErrorCode, UnsupportedFileTypeError
 from app.schemas.document import DocumentType
-
 
 ALLOWED_EXTENSIONS = {".pdf": DocumentType.PDF, ".pptx": DocumentType.PPTX}
 REJECTED_EXTENSIONS = {".ppt"}
 
 
 class StoredUpload:
-    def __init__(self, document_id: str, filename: str, document_type: DocumentType, path: Path) -> None:
+    def __init__(
+        self,
+        document_id: str,
+        filename: str,
+        document_type: DocumentType,
+        path: Path,
+    ) -> None:
         self.document_id = document_id
         self.filename = filename
         self.document_type = document_type

@@ -23,13 +23,24 @@ class OllamaClient:
         }
         timeout = httpx.Timeout(self.settings.ollama_timeout_seconds)
         try:
-            async with httpx.AsyncClient(base_url=self.settings.ollama_base_url, timeout=timeout) as client:
+            async with httpx.AsyncClient(
+                base_url=self.settings.ollama_base_url,
+                timeout=timeout,
+            ) as client:
                 response = await client.post("/api/generate", json=payload)
                 response.raise_for_status()
         except httpx.TimeoutException as exc:
-            raise LLMError(ErrorCode.OLLAMA_TIMEOUT, "Ollama request timed out.", retryable=True) from exc
+            raise LLMError(
+                ErrorCode.OLLAMA_TIMEOUT,
+                "Ollama request timed out.",
+                retryable=True,
+            ) from exc
         except httpx.HTTPError as exc:
-            raise LLMError(ErrorCode.OLLAMA_UNAVAILABLE, "Ollama is unavailable.", retryable=True) from exc
+            raise LLMError(
+                ErrorCode.OLLAMA_UNAVAILABLE,
+                "Ollama is unavailable.",
+                retryable=True,
+            ) from exc
 
         body = response.json()
         raw = body.get("response")

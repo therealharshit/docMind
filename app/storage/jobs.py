@@ -89,7 +89,15 @@ class JobStore:
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (document_id, filename, document_type.value, str(file_path), JobStatus.QUEUED, now, now),
+                (
+                    document_id,
+                    filename,
+                    document_type.value,
+                    str(file_path),
+                    JobStatus.QUEUED,
+                    now,
+                    now,
+                ),
             )
 
     def claim_next_job(self) -> JobRecord | None:
@@ -132,7 +140,12 @@ class JobStore:
             )
 
     def mark_failed(
-        self, document_id: str, code: str, message: str, retryable: bool, metrics: dict[str, Any] | None = None
+        self,
+        document_id: str,
+        code: str,
+        message: str,
+        retryable: bool,
+        metrics: dict[str, Any] | None = None,
     ) -> None:
         error_json = json.dumps({"code": code, "message": message, "retryable": retryable})
         with self.connect() as conn:
@@ -153,7 +166,10 @@ class JobStore:
 
     def get_status(self, document_id: str) -> StatusResponse | None:
         with self.connect() as conn:
-            row = conn.execute("SELECT * FROM jobs WHERE document_id = ?", (document_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM jobs WHERE document_id = ?",
+                (document_id,),
+            ).fetchone()
         if row is None:
             return None
         error = ErrorPayload(**json.loads(row["error_json"])) if row["error_json"] else None

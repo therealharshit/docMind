@@ -38,7 +38,9 @@ class LocalLLMOrchestrator:
         document.narration_script = self._generated_items(narration, snippets)
         return document
 
-    def _generated_items(self, payload: dict, snippets: list[EvidenceSnippet]) -> list[GeneratedItem]:
+    def _generated_items(
+        self, payload: dict, snippets: list[EvidenceSnippet]
+    ) -> list[GeneratedItem]:
         items: list[GeneratedItem] = []
         for raw in payload.get("items", []):
             text = str(raw.get("text", "")).strip()
@@ -55,7 +57,11 @@ class LocalLLMOrchestrator:
             if not term or not definition:
                 continue
             items.append(
-                GlossaryItem(term=term, definition=definition, provenance=[self._provenance(raw, snippets)])
+                GlossaryItem(
+                    term=term,
+                    definition=definition,
+                    provenance=[self._provenance(raw, snippets)],
+                )
             )
         return items
 

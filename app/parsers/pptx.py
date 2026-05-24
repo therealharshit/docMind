@@ -1,6 +1,6 @@
 from pathlib import Path
-from zipfile import BadZipFile, ZipFile
 from xml.etree import ElementTree
+from zipfile import BadZipFile, ZipFile
 
 from pptx import Presentation
 
@@ -15,7 +15,6 @@ from app.schemas.document import (
     Provenance,
     Slide,
 )
-
 
 TEXT_NS = {
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
@@ -103,9 +102,7 @@ class PPTXParser(DocumentParser):
     def _extract_notes(self, path: Path) -> tuple[dict[int, str], list[str]]:
         try:
             with ZipFile(path) as archive:
-                note_names = sorted(
-                    name for name in archive.namelist() if name.startswith("ppt/notesSlides/notesSlide")
-                )
+                note_names = sorted(_note_names(archive))
                 notes: dict[int, str] = {}
                 warnings: list[str] = []
                 for note_name in note_names:
@@ -133,3 +130,11 @@ class PPTXParser(DocumentParser):
         stem = Path(note_name).stem
         digits = "".join(char for char in stem if char.isdigit())
         return int(digits) if digits else None
+
+
+def _note_names(archive: ZipFile) -> list[str]:
+    return [
+        name
+        for name in archive.namelist()
+        if name.startswith("ppt/notesSlides/notesSlide")
+    ]

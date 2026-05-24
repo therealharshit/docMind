@@ -1,5 +1,3 @@
-import os
-from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -26,7 +24,10 @@ def sample_pdf(tmp_path: Path) -> Path:
     path = tmp_path / "sample.pdf"
     doc = fitz.open()
     page = doc.new_page()
-    page.insert_text((72, 72), "Quarterly Plan\nRevenue grew 20 percent.\nCustomer churn decreased.")
+    page.insert_text(
+        (72, 72),
+        "Quarterly Plan\nRevenue grew 20 percent.\nCustomer churn decreased.",
+    )
     doc.save(path)
     doc.close()
     return path

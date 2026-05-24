@@ -12,8 +12,23 @@ from app.schemas.document import (
 class FakeClient:
     async def generate_json(self, prompt: str) -> dict:
         if "glossary" in prompt.lower():
-            return {"items": [{"term": "Revenue", "definition": "Income from sales.", "evidence_index": 1}]}
-        return {"items": [{"text": "Revenue grew according to the document.", "evidence_index": 1}]}
+            return {
+                "items": [
+                    {
+                        "term": "Revenue",
+                        "definition": "Income from sales.",
+                        "evidence_index": 1,
+                    }
+                ]
+            }
+        return {
+            "items": [
+                {
+                    "text": "Revenue grew according to the document.",
+                    "evidence_index": 1,
+                }
+            ]
+        }
 
 
 async def test_generation_adds_contract_outputs() -> None:

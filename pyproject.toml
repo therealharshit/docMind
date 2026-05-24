@@ -1,7 +1,9 @@
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
-addopts = "-q --cov=app --cov-report=term-missing"
+addopts = "-q -p no:debugging --cov=app --cov-report=term-missing"
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100

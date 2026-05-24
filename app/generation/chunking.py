@@ -17,7 +17,9 @@ def collect_evidence(document: FinalDocument, mode: ProcessingMode) -> list[Evid
     for section in document.sections:
         if not section.body_text:
             continue
-        provenance = section.provenance[0] if section.provenance else Provenance(source_type="unknown")
+        provenance = (
+            section.provenance[0] if section.provenance else Provenance(source_type="unknown")
+        )
         text = _compact(section.header, section.body_text)
         used = _append(snippets, text, provenance, used, max_chars)
         if used >= max_chars:
