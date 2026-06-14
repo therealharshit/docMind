@@ -1,10 +1,10 @@
-import json
 from typing import Any
 
 import httpx
 
 from app.core.config import Settings
 from app.core.errors import ErrorCode, LLMError
+from app.generation._response import normalize_llm_json
 
 
 class OllamaClient:
@@ -52,37 +52,5 @@ class OllamaClient:
         if not isinstance(raw, str):
             raise LLMError(ErrorCode.LLM_JSON_INVALID, "Ollama response did not contain JSON text.")
 
-        # Clean markdown code blocks if the local LLM wrapped the JSON
-        clean_raw = raw.strip()
-        if clean_raw.startswith("```"):
-            lines = clean_raw.splitlines()
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].strip() == "```":
-                lines = lines[:-1]
-            clean_raw = "\n".join(lines).strip()
-
-        try:
-            parsed = json.loads(clean_raw)
-        except json.JSONDecodeError as exc:
-            # Fallback to loading the original raw response
-            try:
-                parsed = json.loads(raw)
-            except json.JSONDecodeError:
-                raise LLMError(ErrorCode.LLM_JSON_INVALID, "Ollama returned malformed JSON.") from exc
-
-        # Resilient normalization of output schemas
-        if isinstance(parsed, list):
-            # Wrap flat arrays into the expected dictionary shape
-            parsed = {"items": parsed}
-        elif isinstance(parsed, dict):
-            if "items" not in parsed or not isinstance(parsed["items"], list):
-                # Search for another key whose value is a list of elements
-                list_keys = [k for k, v in parsed.items() if isinstance(v, list)]
-                if list_keys:
-                    parsed["items"] = parsed[list_keys[0]]
-
-        if not isinstance(parsed, dict) or not isinstance(parsed.get("items"), list):
-            raise LLMError(ErrorCode.LLM_JSON_INVALID, "Ollama JSON did not match expected schema.")
-        return parsed
+        return normalize_llm_json(raw)
 
