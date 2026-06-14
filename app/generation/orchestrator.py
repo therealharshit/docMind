@@ -3,7 +3,7 @@ from typing import Protocol
 
 from app.core.config import Settings
 from app.generation.chunking import EvidenceSnippet, collect_evidence, render_evidence
-from app.generation.ollama import OllamaClient
+from app.generation.factory import build_llm_client
 from app.generation.prompts import glossary_prompt, narration_prompt, takeaways_prompt
 from app.schemas.document import FinalDocument, GeneratedItem, GlossaryItem, Provenance
 
@@ -18,7 +18,7 @@ class LocalLLMOrchestrator:
 
     def __init__(self, settings: Settings, client: JSONGenerator | None = None) -> None:
         self.settings = settings
-        self.client = client or OllamaClient(settings)
+        self.client = client or build_llm_client(settings)
 
     async def enrich(self, document: FinalDocument) -> FinalDocument:
         mode = document.document_metadata.processing_mode
