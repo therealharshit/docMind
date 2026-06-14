@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     ollama_timeout_seconds: int = 45
     ollama_num_parallel: int = 1
 
+    llm_provider: str = Field(default="ollama", pattern="^(ollama|google)$")
+    google_api_key: str = ""
+    google_model: str = "gemini-2.0-flash"
+
     pipeline_mode: str = Field(default="fast", pattern="^(fast|quality)$")
     fast_mode_max_chars: int = 18_000
     quality_mode_max_chars: int = 60_000
