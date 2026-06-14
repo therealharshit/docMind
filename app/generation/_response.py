@@ -1,9 +1,15 @@
-"""Shared LLM response normalization used by all provider clients."""
+"""Shared LLM response normalization and provider protocol."""
 
 import json
-from typing import Any
+from typing import Any, Protocol
 
 from app.core.errors import ErrorCode, LLMError
+
+
+class JSONGenerator(Protocol):
+    """Interface that every LLM provider client must implement."""
+
+    async def generate_json(self, prompt: str) -> dict: ...
 
 
 def normalize_llm_json(raw: str) -> dict[str, Any]:
@@ -55,9 +61,10 @@ def _normalize_schema(parsed: Any) -> dict[str, Any]:
     """Coerce common LLM output shapes into ``{"items": [...]}``.``"""
     if isinstance(parsed, list):
         return {"items": parsed}
-    if isinstance(parsed, dict):
-        if "items" not in parsed or not isinstance(parsed["items"], list):
-            list_keys = [k for k, v in parsed.items() if isinstance(v, list)]
-            if list_keys:
-                parsed["items"] = parsed[list_keys[0]]
+    if isinstance(parsed, dict) and (
+        "items" not in parsed or not isinstance(parsed.get("items"), list)
+    ):
+        list_keys = [k for k, v in parsed.items() if isinstance(v, list)]
+        if list_keys:
+            parsed["items"] = parsed[list_keys[0]]
     return parsed

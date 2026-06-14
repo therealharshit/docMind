@@ -1,16 +1,11 @@
 import asyncio
-from typing import Protocol
 
 from app.core.config import Settings
+from app.generation._response import JSONGenerator
 from app.generation.chunking import EvidenceSnippet, collect_evidence, render_evidence
 from app.generation.factory import build_llm_client
 from app.generation.prompts import glossary_prompt, narration_prompt, takeaways_prompt
 from app.schemas.document import FinalDocument, GeneratedItem, GlossaryItem, Provenance
-
-
-class JSONGenerator(Protocol):
-    async def generate_json(self, prompt: str) -> dict:
-        ...
 
 
 class LocalLLMOrchestrator:

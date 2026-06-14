@@ -2,7 +2,7 @@
 
 from app.core.config import Settings
 from app.core.errors import ErrorCode, LLMError
-from app.generation.orchestrator import JSONGenerator
+from app.generation._response import JSONGenerator
 
 
 def build_llm_client(settings: Settings) -> JSONGenerator:
