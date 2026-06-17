@@ -5,10 +5,10 @@ This guide covers running the Intelligent Document Ingestion System and using it
 ## Requirements
 
 - Python 3.11+
-- Ollama running locally
-- A local Ollama model such as `llama3` or `mistral`
+- **Option A — Local (Ollama):** Ollama running locally with a model such as `llama3` or `mistral`
+- **Option B — Cloud (Google):** A Google Generative AI API key (no local GPU needed)
 
-## Local Setup
+## Local Setup (Ollama)
 
 ```bash
 python -m venv .venv
@@ -16,6 +16,31 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 ollama pull llama3
+uvicorn app.main:app --reload
+```
+
+## Local Setup (Google Generative AI)
+
+If you don't have a powerful machine for local models, use Google's cloud API instead:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+Edit `.env` and set:
+
+```env
+LLM_PROVIDER=google
+GOOGLE_API_KEY=your-api-key-here
+GOOGLE_MODEL=gemini-2.0-flash
+```
+
+Then start the API:
+
+```bash
 uvicorn app.main:app --reload
 ```
 
@@ -106,4 +131,4 @@ Nested items include provenance and diagnostics for tracing content back to page
 - OCR is deferred. Image-only pages report `ocr_skipped` diagnostics.
 - Legacy `.ppt` conversion is deferred.
 - The SQLite worker queue is single-node.
-- Fast mode targets low latency, but local Ollama speed depends on hardware and model settings.
+- Fast mode targets low latency. With Ollama, speed depends on hardware and model settings. With Google Generative AI, speed depends on network latency and API quotas.

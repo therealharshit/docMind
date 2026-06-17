@@ -9,7 +9,7 @@ app/api/          FastAPI routes
 app/core/         settings, logging, typed errors
 app/storage/      file uploads and SQLite job store
 app/parsers/      PDF and PPTX parsers
-app/generation/   chunking, prompts, Ollama client, orchestration
+app/generation/   chunking, prompts, LLM clients (Ollama + Google), factory, orchestration
 app/pipeline.py   parse -> generate -> persist pipeline
 app/worker.py     durable worker loop
 tests/            unit, API, parser, and LLM contract tests
@@ -66,7 +66,7 @@ Worker loop
 Extractive evidence prefilter
    |
    v
-LocalLLMOrchestrator -> Ollama /api/generate
+LocalLLMOrchestrator -> LLM client (Ollama or Google GenAI via factory)
    |
    v
 FinalDocument JSON -> GET /result/{document_id}
@@ -83,6 +83,9 @@ Expected failures use typed errors from `app/core/errors.py` and are persisted i
 - `corrupt_document`
 - `ollama_unavailable`
 - `ollama_timeout`
+- `google_api_error`
+- `google_timeout`
+- `llm_provider_invalid`
 - `llm_json_invalid`
 - `result_not_ready`
 
@@ -90,8 +93,11 @@ Clients inspect failures through `/status/{document_id}`.
 
 ## Testing Notes
 
-Tests use `pytest`, `pytest-asyncio`, and `pytest-cov`. LLM behavior is tested with fake Ollama clients so CI stays deterministic. Live local model behavior belongs in benchmark runs.
+Tests use `pytest`, `pytest-asyncio`, and `pytest-cov`. LLM behavior is tested with fake clients (both Ollama and Google) so CI stays deterministic. The shared response normalization in `_response.py` has dedicated tests covering JSON parsing, markdown stripping, and schema coercion. Live model behavior belongs in benchmark runs.
 
 ## Performance Notes
 
-Fast mode reduces local LLM latency by parsing native text first, building a bounded extractive evidence set, and running three JSON prompts. Ollama concurrency is memory-sensitive; increasing `OLLAMA_NUM_PARALLEL` can improve throughput but also multiplies context memory use.
+Fast mode reduces LLM latency by parsing native text first, building a bounded extractive evidence set, and running three JSON prompts in parallel.
+
+- **Ollama:** Concurrency is memory-sensitive; increasing `OLLAMA_NUM_PARALLEL` can improve throughput but also multiplies context memory use.
+- **Google GenAI:** Latency depends on network and API quotas. The `gemini-2.0-flash` model is recommended for speed and cost-effectiveness.

@@ -1,8 +1,8 @@
 # Intelligent Document Ingestion System
 
-Production-shaped FastAPI service for ingesting PDF and PPTX documents, extracting structured JSON, and generating local-LLM outputs with Ollama.
+Production-shaped FastAPI service for ingesting PDF and PPTX documents, extracting structured JSON, and generating LLM-powered outputs with Ollama (local) or Google Generative AI (cloud).
 
-This implementation follows a vertical-slice architecture: durable upload/status/result APIs, native PDF/PPTX parsing, PPTX speaker notes extraction, bounded local Ollama generation, Docker deployment, tests, and benchmarks.
+This implementation follows a vertical-slice architecture: durable upload/status/result APIs, native PDF/PPTX parsing, PPTX speaker notes extraction, configurable LLM generation, Docker deployment, tests, and benchmarks.
 
 ## Documentation
 
@@ -15,7 +15,7 @@ This implementation follows a vertical-slice architecture: durable upload/status
 - PPTX ingestion with `python-pptx`
 - PPTX speaker notes extraction through package XML
 - Embedded image metadata extraction
-- Local LLM generation through Ollama only
+- LLM generation through Ollama (local) or Google Generative AI (cloud)
 - Key takeaways
 - Glossary
 - Narration script
@@ -56,8 +56,8 @@ Nested objects include provenance and diagnostics so generated output can be tra
 Requirements:
 
 - Python 3.11+
-- Ollama running locally
-- A local model such as `llama3` or `mistral`
+- **Option A (local):** Ollama running locally with a model such as `llama3` or `mistral`
+- **Option B (cloud):** A Google Generative AI API key
 
 Install dependencies:
 
@@ -68,10 +68,19 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Pull a local model:
+Pull a local model (if using Ollama):
 
 ```bash
 ollama pull llama3
+```
+
+Or configure Google Generative AI instead:
+
+```bash
+# In your .env file:
+LLM_PROVIDER=google
+GOOGLE_API_KEY=your-api-key-here
+GOOGLE_MODEL=gemini-2.0-flash
 ```
 
 Run the API:
@@ -192,9 +201,12 @@ Key environment variables:
 | `STORAGE_DIR` | `storage` | Uploads, results, SQLite DB |
 | `DATABASE_URL` | `sqlite:///storage/app.db` | SQLite job database |
 | `MAX_UPLOAD_MB` | `100` | Upload size limit |
+| `LLM_PROVIDER` | `ollama` | LLM backend: `ollama` or `google` |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama API URL |
 | `OLLAMA_MODEL` | `llama3` | Local model name |
 | `OLLAMA_TIMEOUT_SECONDS` | `45` | Per-request LLM timeout |
+| `GOOGLE_API_KEY` | _(empty)_ | Google Generative AI API key (required when provider is `google`) |
+| `GOOGLE_MODEL` | `gemini-2.0-flash` | Google model name |
 | `PIPELINE_MODE` | `fast` | `fast` or `quality` |
 | `FAST_MODE_MAX_CHARS` | `18000` | Evidence budget for fast mode |
 | `QUALITY_MODE_MAX_CHARS` | `60000` | Evidence budget for quality mode |
