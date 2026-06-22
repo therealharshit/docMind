@@ -210,3 +210,7 @@ Key environment variables:
 | `PIPELINE_MODE` | `fast` | `fast` or `quality` |
 | `FAST_MODE_MAX_CHARS` | `18000` | Evidence budget for fast mode |
 | `QUALITY_MODE_MAX_CHARS` | `60000` | Evidence budget for quality mode |
+
+## License
+
+MIT © 2026 Harshit Verma. See [LICENSE](LICENSE) for details.
